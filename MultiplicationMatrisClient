@@ -1,0 +1,217 @@
+package matris;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.apache.axis2.AxisFault;
+
+import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
+
+import servispaketi.Matris1Stub;
+import servispaketi.Matris1Stub.Islem1;
+import servispaketi.Matris1Stub.Islem1Response;
+import servispaketi2.Matris2Stub;
+import servispaketi2.Matris2Stub.Islem2;
+import servispaketi2.Matris2Stub.Islem2Response;
+
+
+public class MatrisCarpCift {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		
+		
+		
+		int matrisdegeri=0;
+	       JFrame jfrm=new JFrame("Matris Programý");
+		   jfrm.setSize(1000,1000);
+		   
+		   jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		   JPanel panel = new JPanel();
+		   JLabel jlab=new JLabel("Matris boyutunu giriniz:");
+		
+		   matrisdegeri =Integer.parseInt(JOptionPane.showInputDialog(jlab));
+		   long startTime = System.currentTimeMillis();
+		   JTextField jtf = new JTextField();
+		   JTextField jtf2 = new JTextField();
+			TimerTask gorev = new TimerTask(){  
+				int time = 0;
+		         public void run(){
+		         
+				time++;
+		         jtf.setText(String.valueOf(time));
+		         }
+		     };
+		         Timer saat = new Timer();
+		         saat.schedule(gorev, 0,1000);
+		         
+		   
+		   int[][] randomMatrix1= RandomArray(matrisdegeri);
+		   int[][] randomMatrix2= RandomArray(matrisdegeri);
+		   
+		   //matrisis diziye atma
+		   int diziUzunlugu = matrisdegeri*matrisdegeri;
+		   int[] geciciDizi1 = new int[diziUzunlugu];
+		   int[] geciciDizi2 = new int[diziUzunlugu];
+		   int[] geciciDizi3 = new int[diziUzunlugu];
+		   /* int[] gelenDizi1 = new int [diziUzunlugu];
+		   int[] gelenDizi2 = new int [diziUzunlugu];
+		   int[][] carpimSonuc = new int [matrisdegeri][matrisdegeri]; */
+		   int k = 0;
+		   int u = 0;
+		   for(int r = 0; r< matrisdegeri/2; r++){
+			   for(int t = 0; t<matrisdegeri; t++){
+				   geciciDizi1[k] = randomMatrix1[r][t];
+				   k++;
+			   }
+		   }
+		   
+		   int min = matrisdegeri/2;
+		   for(int r = min; r< matrisdegeri; r++){
+			   for(int t = 0; t<matrisdegeri; t++){
+				   geciciDizi3[k] = randomMatrix1[r][t];
+				   k++;
+			   }
+		   }
+		   
+		   for(int a = 0; a< matrisdegeri; a++){
+			   for(int b = 0; b<matrisdegeri; b++){
+				   geciciDizi2[u] = randomMatrix2[a][b];
+				   u++;
+			   }
+		   }
+		   
+		   
+		   thread1 tr1 = new thread1();
+		   tr1.islem(geciciDizi1, geciciDizi2, diziUzunlugu);
+		   tr1.start();
+		   try {
+			tr1.join();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		   int [] threadDizisi = new int [diziUzunlugu];
+		   threadDizisi = tr1.diziAl();
+		   
+		   thread2 tr2 = new thread2();
+		   tr2.islem(geciciDizi3, geciciDizi2, diziUzunlugu);
+		   tr2.start();
+		   try {
+				tr2.join();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			   int [] threadDizisi2 = new int [diziUzunlugu];
+			   threadDizisi2 = tr2.diziAl();
+		   
+		  /* 
+		   try{
+		   Matris1Stub stub1 = new Matris1Stub();
+		   Islem1 islem1 = new Islem1();
+		   islem1.setDizi1(geciciDizi1);
+		   islem1.setDizi2(geciciDizi2);
+		   Islem1Response res1 = stub1.islem1(islem1);
+		   
+		   gelenDizi1 = res1.get_return();
+		   
+		   Matris2Stub stub2 = new Matris2Stub();
+		   Islem2 islem2 = new Islem2();
+		   islem2.setDizi1(geciciDizi3);
+		   islem2.setDizi2(geciciDizi2);
+		   Islem2Response res2 = stub2.islem2(islem2);
+		   
+		   gelenDizi2 = res2.get_return();
+		   }
+		   catch(AxisFault e){
+			   e.printStackTrace();
+		   }
+		   catch(RemoteException e){
+			   e.printStackTrace();
+		   }
+		   int[] toplamDizi = new int [diziUzunlugu];
+		   for(int i=0 ; i<diziUzunlugu ; i++){
+			   toplamDizi[i] = gelenDizi1[i] + gelenDizi2[i];
+		   }
+		   */
+			   int[] toplamDizi = new int [diziUzunlugu];
+			   for(int i=0 ; i<diziUzunlugu ; i++){
+				   toplamDizi[i] = threadDizisi[i] + threadDizisi2[i];
+			   }
+			   int[][] toplamMatris = new int [matrisdegeri][matrisdegeri];
+			   int y = 0;
+			   for(int x=0; x<matrisdegeri; x++){
+			    	for(int c=0; c<matrisdegeri; c++){
+			    		toplamMatris[x][c] = toplamDizi[y];
+			    		y++;
+			    	}
+			    }
+		   String sonuc="Birinci Matris:  "+Arrays.deepToString(randomMatrix1)+"  \n  "
+					+ "  ikinci Matris:  "+Arrays.deepToString(randomMatrix2)+" \n"
+			+ "  Carpim Matris:  "+Arrays.deepToString(toplamMatris);
+		   
+		   long endTime = System.currentTimeMillis();
+		   long aradakiZaman = endTime-startTime;
+		   double second = (double)aradakiZaman/1000;
+		   jtf2.setText(String.valueOf(second));
+		   
+		   JLabel jlab2=new JLabel(sonuc);
+		   panel.add(jlab2);
+		   panel.add(jtf2);
+		   jfrm.add(panel);
+		   jfrm.setVisible(true);
+		   
+		   DosyayaEkle(sonuc);
+		   
+
+	}
+
+	
+	private static int[][] RandomArray(int n) {
+        int[][] randomMatrix = new int [n][n];
+        
+        Random rand = new Random(); 
+        
+        for (int i = 0; i < n; i++) {   
+
+            for (int j = 0; j < n; j++) {
+                Integer r = rand.nextInt(100)+1; 
+                randomMatrix[i][j] = Math.abs(r);
+            }
+
+        }
+    return randomMatrix;
+    }
+	
+private static void DosyayaEkle(String metin){
+		
+		try{
+	        File dosya = new File("matrislerim.txt");
+	        FileWriter yazici = new FileWriter(dosya,true);
+	        BufferedWriter yaz = new BufferedWriter(yazici);
+	        yaz.write(metin);
+	        yaz.close();
+	        System.out.println("Ekleme islemi Basarili");
+	    }
+	    catch (Exception hata){
+	        hata.printStackTrace();
+	    }
+	}
+
+
+}
+
