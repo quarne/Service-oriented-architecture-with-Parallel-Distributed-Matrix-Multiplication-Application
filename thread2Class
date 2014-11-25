@@ -1,0 +1,50 @@
+package matris;
+
+import java.rmi.RemoteException;
+
+import org.apache.axis2.AxisFault;
+
+import servispaketi2.Matris2Stub;
+import servispaketi2.Matris2Stub.Islem2;
+import servispaketi2.Matris2Stub.Islem2Response;
+
+public class thread2 extends Thread {
+	int[] dizi1;
+	int[] dizi2;
+	int uzunluk;
+
+
+		public void islem(int[] dizi1, int [] dizi2, int uzunluk){
+			this.dizi1 = dizi1;
+			this.dizi2 = dizi2;
+			this.uzunluk=uzunluk;	
+		}
+		private int [] dizzzii = new int [this.uzunluk];
+
+		@Override
+		public void run(){
+			int [] gonderilenDizi1 = new int [this.uzunluk];
+			int [] gonderilenDizi2 = new int [this.uzunluk];
+			gonderilenDizi1 = this.dizi1;
+			gonderilenDizi2 = this.dizi2;
+			
+			try{
+			Matris2Stub stub = new Matris2Stub();
+			Islem2 islem2 = new Islem2();
+			islem2.setDizi1(gonderilenDizi1);
+			islem2.setDizi2(gonderilenDizi2);
+			Islem2Response res = stub.islem2(islem2);
+			dizzzii = res.get_return();
+			}
+			catch(AxisFault e){
+				e.printStackTrace();
+			}
+			catch(RemoteException e){
+				e.printStackTrace();
+			}
+		}
+		public int [] diziAl(){
+			return dizzzii;
+		}
+
+}
